@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/[email protected]/dist/tabler-icons.min.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/[email protected]/dist/umd/supabase.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont/dist/tabler-icons.min.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
 :root {
@@ -641,7 +641,17 @@ input:focus, select:focus, textarea:focus { outline: none; box-shadow: 0 0 0 2px
 // ========================================
 const SUPABASE_URL = 'https://uvgzwxxzydbygylxhzma.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_fHbbqRYBYnzqXu6FqQFLBw_U9q80cem';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+let sb = null;
+try {
+  if (window.supabase && window.supabase.createClient) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    console.log('[ReciclABC] Supabase conectado com sucesso');
+  } else {
+    console.warn('[ReciclABC] Biblioteca Supabase não carregou. Site rodará com dados de demonstração.');
+  }
+} catch (e) {
+  console.error('[ReciclABC] Erro ao inicializar Supabase:', e);
+}
 
 let authMode = 'login';
 let authPerfil = 'condo';
@@ -687,47 +697,56 @@ async function renderAds() {
   const cidade = document.getElementById('f-cidade').value;
   const peso = parseInt(document.getElementById('f-peso').value) || 0;
   const el = document.getElementById('ads-list');
+  if (!el) return;
 
   el.innerHTML = '<div class="empty">Carregando anúncios...</div>';
 
-  // Busca no Supabase
-  let query = sb.from('anuncios').select('*').eq('status', 'aberto').gte('peso_estimado_kg', peso);
-  if (tipo) query = query.eq('tipo', tipo);
-  if (cidade) query = query.eq('cidade', cidade);
+  let list = null;
 
-  const { data, error } = await query;
+  // Só tenta o Supabase se ele estiver realmente disponível
+  if (sb) {
+    try {
+      console.log('[ReciclABC] Buscando anúncios no Supabase...');
+      let query = sb.from('anuncios').select('*').eq('status', 'aberto').gte('peso_estimado_kg', peso);
+      if (tipo) query = query.eq('tipo', tipo);
+      if (cidade) query = query.eq('cidade', cidade);
 
-  let list;
-  if (error) {
-    console.error('Erro Supabase:', error);
-    // Fallback: usa os dados estáticos se o Supabase falhar
-    list = ads.filter(a =>
-      (!tipo || a.tipo === tipo) &&
-      (!cidade || a.cidade === cidade) &&
-      a.peso >= peso
-    );
-  } else if (!data || data.length === 0) {
-    // Se não veio nada do banco, também usa os estáticos (útil enquanto o banco não tem dados)
-    list = ads.filter(a =>
-      (!tipo || a.tipo === tipo) &&
-      (!cidade || a.cidade === cidade) &&
-      a.peso >= peso
-    );
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('[ReciclABC] Erro do Supabase ao buscar anúncios:', error);
+      } else if (!data || data.length === 0) {
+        console.log('[ReciclABC] Supabase retornou zero anúncios. Usando dados de demonstração.');
+      } else {
+        console.log('[ReciclABC] Recebidos ' + data.length + ' anúncios do Supabase.');
+        list = data.map(a => ({
+          tipo: a.tipo,
+          emoji: a.tipo === 'plastico' ? 'PET' : a.tipo === 'papel' ? 'PAP' : a.tipo === 'metal' ? 'AL' : 'VID',
+          badge: 'b-' + a.tipo,
+          label: a.tipo.charAt(0).toUpperCase() + a.tipo.slice(1),
+          titulo: a.titulo,
+          loc: `Condomínio em ${a.cidade}`,
+          cidade: a.cidade,
+          dist: '—',
+          precoRef: parseFloat(a.preco_referencia) || 0,
+          peso: parseFloat(a.peso_estimado_kg) || 0,
+          rota: null
+        }));
+      }
+    } catch (e) {
+      console.error('[ReciclABC] Exceção ao buscar Supabase:', e);
+    }
   } else {
-    // Adapta os dados do Supabase para o mesmo formato dos estáticos
-    list = data.map(a => ({
-      tipo: a.tipo,
-      emoji: a.tipo === 'plastico' ? 'PET' : a.tipo === 'papel' ? 'PAP' : a.tipo === 'metal' ? 'AL' : 'VID',
-      badge: 'b-' + a.tipo,
-      label: a.tipo.charAt(0).toUpperCase() + a.tipo.slice(1),
-      titulo: a.titulo,
-      loc: `Condomínio em ${a.cidade}`,
-      cidade: a.cidade,
-      dist: '—',
-      precoRef: parseFloat(a.preco_referencia) || 0,
-      peso: parseFloat(a.peso_estimado_kg) || 0,
-      rota: null
-    }));
+    console.log('[ReciclABC] Supabase indisponível. Usando dados de demonstração.');
+  }
+
+  // Fallback para dados estáticos
+  if (!list) {
+    list = ads.filter(a =>
+      (!tipo || a.tipo === tipo) &&
+      (!cidade || a.cidade === cidade) &&
+      a.peso >= peso
+    );
   }
 
   if (!list.length) {
@@ -879,7 +898,9 @@ async function doAuth() {
 
   // Se é signup, tenta salvar no Supabase
   if (authMode === 'signup') {
-    if (!isRec) {
+    if (!sb) {
+      alert('Cadastro registrado localmente (banco de dados indisponível no momento).');
+    } else if (!isRec) {
       const sel = document.getElementById('signup-acesso');
       if (sel) acesso = sel.value;
 
