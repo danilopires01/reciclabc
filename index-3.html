@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReciclABC — Reciclagem que rende no Grande ABC</title>
+<meta name="description" content="A rede que conecta condomínios e compradores de recicláveis no Grande ABC. Anuncie, receba ofertas, gere renda e impacto ESG.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/[email protected]/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/[email protected]/dist/umd/supabase.min.js"></script>
+
+<style>
+:root {
+  --teal-50:  #E1F5EE;
+  --teal-400: #1D9E75;
+  --teal-600: #0F6E56;
+  --teal-800: #085041;
+  --coral-50:  #FAECE7;
+  --coral-400: #D85A30;
+  --coral-600: #993C1D;
+  --amber-50:  #FAEEDA;
+  --amber-400: #BA7517;
+  --amber-800: #412402;
+  --bg-primary: #ffffff;
+  --bg-secondary: #F7F6F2;
+  --bg-tertiary: #F1EFE8;
+  --text-primary: #2C2C2A;
+  --text-secondary: #5F5E5A;
+  --text-tertiary: #888780;
+  --border-tertiary: rgba(60,60,55,0.10);
+  --border-secondary: rgba(60,60,55,0.20);
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', system-ui, -apple-system, sans-serif; color: var(--text-primary); background: var(--bg-primary); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; }
+input, select, textarea { font-family: inherit; padding: 9px 12px; border: 0.5px solid var(--border-secondary); border-radius: var(--radius-md); background: var(--bg-primary); color: var(--text-primary); }
+input:focus, select:focus, textarea:focus { outline: none; box-shadow: 0 0 0 2px var(--teal-50); border-color: var(--teal-400); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 0.5px solid var(--border-tertiary); background: var(--bg-primary); position: sticky; top: 0; z-index: 40; flex-wrap: wrap; gap: 10px; }
+.logo { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+.logo-ic { width: 32px; height: 32px; background: var(--teal-400); border-radius: 9px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; }
+.logo-tx { font-size: 18px; font-weight: 500; }
+.logo-tx span { color: var(--teal-400); }
+.nav-links { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.nav-links a { font-size: 13px; color: var(--text-secondary); cursor: pointer; padding: 6px 8px; border-radius: var(--radius-md); }
+.nav-links a:hover { background: var(--bg-secondary); }
+.nav-links a.active { color: var(--teal-400); font-weight: 500; }
+.nav-cta { display: flex; gap: 8px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 17px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: background 0.15s; }
+.btn-teal { background: var(--teal-400); color: white; }
+.btn-teal:hover { background: var(--teal-600); }
+.btn-coral { background: var(--coral-400); color: white; }
+.btn-coral:hover { background: var(--coral-600); }
+.btn-amber { background: var(--amber-400); color: white; }
+.btn-amber:hover { background: var(--amber-800); }
+.btn-out { background: transparent; border: 1.5px solid var(--border-secondary); color: var(--text-primary); }
+.btn-out:hover { background: var(--bg-secondary); }
+.btn-wa { background: #25A65B; color: white; }
+.btn-wa:hover { background: #1B7E45; }
+.btn-sm { padding: 7px 13px; font-size: 12px; }
+.btn-full { width: 100%; }
+
+.page { display: none; padding: 28px 0 60px; }
+.page.active { display: block; }
+
+.hero { text-align: center; padding: 56px 20px 44px; background: linear-gradient(180deg, var(--teal-50) 0%, transparent 100%); border-radius: var(--radius-xl); margin-bottom: 36px; }
+.hero-badge { display: inline-flex; align-items: center; gap: 5px; background: white; color: var(--teal-600); font-size: 12px; font-weight: 500; padding: 5px 14px; border-radius: 20px; margin-bottom: 16px; }
+.hero h1 { font-size: 36px; font-weight: 500; line-height: 1.2; margin-bottom: 14px; max-width: 620px; margin-left: auto; margin-right: auto; }
+.hero h1 em { color: var(--teal-400); font-style: normal; }
+.hero p { font-size: 16px; color: var(--text-secondary); max-width: 520px; margin: 0 auto 26px; line-height: 1.6; }
+.hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.section { margin-bottom: 44px; }
+.section-h { font-size: 24px; font-weight: 500; text-align: center; margin-bottom: 8px; }
+.section-sub { font-size: 14px; color: var(--text-secondary); text-align: center; margin-bottom: 26px; }
+.section-h-left { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+.section-sub-left { font-size: 13px; color: var(--text-secondary); margin-bottom: 18px; }
+
+.bignum-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.bignum { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 22px 12px; text-align: center; }
+.bignum-n { font-size: 30px; font-weight: 500; color: var(--teal-400); }
+.bignum-l { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+.steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
+.step { text-align: center; padding: 10px; }
+.step-n { width: 42px; height: 42px; border-radius: 50%; background: var(--teal-50); color: var(--teal-600); font-weight: 500; font-size: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 11px; }
+.step h4 { font-size: 15px; font-weight: 500; margin-bottom: 5px; }
+.step p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+.prob-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.prob { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); padding: 18px; }
+.prob-ic { width: 40px; height: 40px; border-radius: 10px; background: var(--coral-50); display: flex; align-items: center; justify-content: center; margin-bottom: 11px; color: var(--coral-400); font-size: 20px; }
+.prob h4 { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+.prob p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+
+.locais { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; }
+.local-chip { background: var(--teal-50); color: var(--teal-600); font-size: 14px; font-weight: 500; padding: 8px 18px; border-radius: 22px; }
+
+.pkg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.pkg { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); padding: 18px 16px; }
+.pkg.feat { border: 2px solid var(--teal-400); }
+.pkg-badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 8px; display: inline-block; margin-bottom: 9px; }
+.pkg-name { font-size: 16px; font-weight: 500; margin-bottom: 3px; }
+.pkg-price { font-size: 26px; font-weight: 500; }
+.pkg-price span { font-size: 13px; color: var(--text-secondary); font-weight: 400; }
+.pkg-desc { font-size: 12px; color: var(--text-secondary); margin: 8px 0 12px; line-height: 1.5; min-height: 36px; }
+.pkg-feat { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: flex; gap: 6px; align-items: flex-start; line-height: 1.5; }
+.pkg-feat i { color: var(--teal-400); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+.faq-item { border-bottom: 0.5px solid var(--border-tertiary); padding: 16px 0; cursor: pointer; }
+.faq-q { font-size: 15px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.faq-a { font-size: 14px; color: var(--text-secondary); line-height: 1.65; margin-top: 9px; display: none; }
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-chev { transform: rotate(180deg); }
+.faq-chev { transition: transform .2s; color: var(--text-secondary); flex-shrink: 0; font-size: 18px; }
+.faq-wrap { max-width: 640px; margin: 0 auto; }
+
+.contato-card { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 24px; max-width: 500px; margin: 0 auto; }
+.contato-row { display: flex; align-items: center; gap: 11px; font-size: 14px; padding: 10px 0; color: var(--text-secondary); }
+.contato-row i { color: var(--teal-400); font-size: 20px; }
+
+.toggle-row { display: flex; gap: 0; background: var(--bg-secondary); padding: 4px; border-radius: 26px; margin-bottom: 18px; max-width: 380px; }
+.toggle-btn { flex: 1; padding: 9px 14px; border-radius: 22px; background: transparent; border: none; font-size: 13px; cursor: pointer; color: var(--text-secondary); font-weight: 500; }
+.toggle-btn.active { background: var(--bg-primary); color: var(--teal-400); }
+.toggle-pill { background: var(--amber-400); color: white; font-size: 10px; padding: 2px 7px; border-radius: 9px; margin-left: 5px; }
+
+.banner { background: var(--teal-50); border-left: 3px solid var(--teal-400); padding: 14px 16px; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-bottom: 18px; }
+.banner-amber { background: var(--amber-50); border-left-color: var(--amber-400); }
+.banner-t { font-size: 14px; font-weight: 500; color: var(--teal-800); margin-bottom: 4px; }
+.banner-amber .banner-t { color: var(--amber-800); }
+.banner-p { font-size: 13px; color: var(--teal-600); line-height: 1.55; }
+.banner-amber .banner-p { color: var(--amber-400); }
+
+.filters { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 18px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+.filter-field { display: flex; align-items: center; gap: 7px; }
+.filter-field label { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+.filter-field select, .filter-field input { font-size: 13px; padding: 5px 10px; }
+.filter-field input[type="range"] { width: 100px; }
+
+.route-card { background: var(--amber-50); border: 1.5px solid var(--amber-400); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px; }
+.route-head { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; flex-wrap: wrap; }
+.route-ic { width: 40px; height: 40px; border-radius: 10px; background: #FAC775; display: flex; align-items: center; justify-content: center; color: var(--amber-800); font-size: 20px; flex-shrink: 0; }
+.route-title { font-size: 15px; font-weight: 500; color: var(--amber-800); }
+.route-sub { font-size: 12px; color: #633806; }
+.route-badge { margin-left: auto; background: var(--amber-400); color: white; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 11px; }
+.route-stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 11px; }
+.route-stat { background: white; border-radius: 7px; padding: 7px 12px; font-size: 12px; color: var(--amber-800); }
+.route-stat strong { font-weight: 500; }
+.route-items { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 11px; }
+.route-pin { background: white; color: #633806; font-size: 12px; padding: 5px 10px; border-radius: 7px; display: flex; align-items: center; gap: 5px; }
+
+.ads-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.ad { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); overflow: hidden; }
+.ad-photo { height: 100px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 36px; position: relative; }
+.ad-route-tag { background: #FAC775; color: var(--amber-800); font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 7px; position: absolute; top: 10px; right: 10px; display: flex; align-items: center; gap: 3px; }
+.ad-body { padding: 14px; }
+.ad-badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 10px; margin-bottom: 7px; }
+.b-plastico { background: var(--amber-50); color: #633806; }
+.b-papel { background: #EAF3DE; color: #3B6D11; }
+.b-metal { background: var(--bg-tertiary); color: #444441; }
+.b-vidro { background: #E6F1FB; color: #0C447C; }
+.ad-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.ad-loc { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; font-style: italic; }
+.ad-price-row { background: var(--bg-secondary); border-radius: 8px; padding: 10px 12px; margin-bottom: 11px; }
+.ad-price-l { font-size: 11px; color: var(--text-secondary); margin-bottom: 2px; }
+.ad-price-v { font-size: 17px; font-weight: 500; color: var(--teal-400); }
+.ad-price-r { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+.ad-actions { display: flex; gap: 7px; }
+.ad-actions .btn { flex: 1; padding: 8px 10px; font-size: 12px; }
+.empty { text-align: center; padding: 36px; color: var(--text-secondary); font-size: 14px; }
+
+.pub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.pub-steps { }
+.pub-step { display: flex; gap: 12px; margin-bottom: 18px; }
+.pub-step-n { width: 30px; height: 30px; border-radius: 50%; background: var(--teal-50); color: var(--teal-600); font-weight: 500; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pub-step h4 { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+.pub-step p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+.pub-form { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); padding: 20px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-bottom: 5px; }
+.field input, .field select, .field textarea { width: 100%; font-size: 13px; }
+.field textarea { min-height: 64px; resize: vertical; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border-secondary); font-size: 12px; cursor: pointer; background: transparent; color: var(--text-secondary); }
+.chip.sel { border-color: var(--teal-400); color: var(--teal-600); background: var(--teal-50); }
+.upload { border: 1.5px dashed var(--border-secondary); border-radius: 8px; padding: 22px; text-align: center; cursor: pointer; color: var(--text-secondary); font-size: 13px; }
+.upload:hover { border-color: var(--teal-400); color: var(--teal-400); }
+
+.impact-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+.esg-card { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+.esg-item { margin-bottom: 14px; }
+.esg-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.esg-track { background: var(--bg-secondary); border-radius: 4px; height: 9px; overflow: hidden; }
+.esg-fill { height: 100%; border-radius: 4px; }
+.seal { display: inline-block; font-size: 13px; padding: 5px 14px; border-radius: 22px; font-weight: 500; margin-right: 7px; margin-top: 7px; }
+.hist-row { display: flex; justify-content: space-between; font-size: 13px; padding: 9px 0; border-bottom: 0.5px solid var(--border-tertiary); }
+.hist-row:last-child { border: none; }
+.hist-row strong { color: var(--teal-400); font-weight: 500; }
+
+.modal-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-ov.open { display: flex; }
+.modal { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; width: 400px; max-width: 100%; max-height: 90vh; overflow-y: auto; }
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.modal-title { font-size: 18px; font-weight: 500; }
+.modal-close { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); font-size: 22px; padding: 4px; }
+.tabsel { display: flex; gap: 7px; margin-bottom: 18px; }
+.tabsel button { flex: 1; padding: 9px; border-radius: 8px; border: 1.5px solid var(--border-secondary); background: transparent; font-size: 13px; cursor: pointer; color: var(--text-secondary); }
+.tabsel button.active.teal { border-color: var(--teal-400); background: var(--teal-50); color: var(--teal-600); font-weight: 500; }
+.tabsel button.active.coral { border-color: var(--coral-400); background: var(--coral-50); color: var(--coral-600); font-weight: 500; }
+
+.footer { background: var(--bg-secondary); padding: 30px 20px; margin-top: 40px; text-align: center; font-size: 13px; color: var(--text-secondary); }
+.footer a { color: var(--teal-400); cursor: pointer; }
+.footer p { margin-bottom: 6px; }
+
+@media (max-width: 700px) {
+  .nav { padding: 12px 16px; }
+  .nav-links { gap: 12px; }
+  .hero h1 { font-size: 26px; }
+  .hero p { font-size: 14px; }
+  .pub-grid { grid-template-columns: 1fr; }
+  .section-h { font-size: 20px; }
+}
+
+.back-top { position: fixed; bottom: 20px; right: 20px; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-400); color: white; border: none; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 50; transition: background 0.15s, transform 0.2s; }
+.back-top.visible { display: flex; }
+.back-top:hover { background: var(--teal-600); transform: translateY(-2px); }
+
+.sobre-hero { background: linear-gradient(180deg, var(--teal-50) 0%, transparent 100%); border-radius: var(--radius-xl); padding: 44px 20px 36px; text-align: center; margin-bottom: 36px; }
+.sobre-hero h1 { font-size: 30px; font-weight: 500; line-height: 1.2; margin-bottom: 12px; }
+.sobre-hero p { font-size: 15px; color: var(--text-secondary); max-width: 560px; margin: 0 auto; line-height: 1.65; }
+
+.valores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.valor-card { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--radius-lg); padding: 18px; }
+.valor-ic { width: 42px; height: 42px; border-radius: 11px; background: var(--teal-50); color: var(--teal-600); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 11px; }
+.valor-card h4 { font-size: 15px; font-weight: 500; margin-bottom: 5px; }
+.valor-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+.mv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.mv-card { background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 22px; }
+.mv-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--teal-400); font-weight: 500; margin-bottom: 8px; }
+.mv-card h3 { font-size: 17px; font-weight: 500; margin-bottom: 8px; line-height: 1.3; }
+.mv-card p { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo" onclick="nav('home')">
+    <div class="logo-ic"><i class="ti ti-recycle"></i></div>
+    <span class="logo-tx">Recicl<span>ABC</span></span>
+  </div>
+  <div class="nav-links">
+    <a id="nav-home" class="active" onclick="nav('home')">Início</a>
+    <a id="nav-ads" onclick="nav('ads')">Anúncios</a>
+    <a id="nav-pub" onclick="nav('pub')">Publicar</a>
+    <a id="nav-sobre" onclick="nav('sobre')">Sobre nós</a>
+    <a id="nav-imp" onclick="nav('imp')" style="display:none">Meu impacto</a>
+  </div>
+  <div class="nav-cta" id="nav-cta">
+    <button class="btn btn-out btn-sm" onclick="openAuth('login')"><i class="ti ti-login" style="font-size:14px"></i> Entrar</button>
+    <button class="btn btn-teal btn-sm" onclick="openAuth('signup')">Cadastrar</button>
+  </div>
+</nav>
+
+<div class="container">
+
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-badge"><i class="ti ti-map-pin" style="font-size:13px"></i> Grande ABC Paulista</div>
+    <h1>Seu material reciclável tem <em>valor</em>. Conecte-se a quem compra.</h1>
+    <p>A rede que conecta condomínios e compradores de recicláveis no Grande ABC. Anuncie, receba ofertas, gere renda e impacto.</p>
+    <div class="hero-btns">
+      <button class="btn btn-teal" onclick="openAuth('signup')"><i class="ti ti-building-community" style="font-size:16px"></i> Sou condomínio</button>
+      <button class="btn btn-coral" onclick="openAuth('signup-rec')"><i class="ti ti-truck-loading" style="font-size:16px"></i> Sou reciclador</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Como funciona</div>
+    <div class="section-sub">Do material ao PIX, em 5 passos simples</div>
+    <div class="steps-grid">
+      <div class="step"><div class="step-n">1</div><h4>Separe</h4><p>Vidro, plástico, papel ou metal</p></div>
+      <div class="step"><div class="step-n">2</div><h4>Anuncie</h4><p>Foto e descrição pelo WhatsApp</p></div>
+      <div class="step"><div class="step-n">3</div><h4>Receba ofertas</h4><p>Compradores aceitam ou ofertam</p></div>
+      <div class="step"><div class="step-n">4</div><h4>Combine coleta</h4><p>Data e hora pela plataforma</p></div>
+      <div class="step"><div class="step-n">5</div><h4>Receba PIX</h4><p>Após a coleta e pesagem</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Números do ReciclABC</div>
+    <div class="section-sub">O movimento da reciclagem no Grande ABC</div>
+    <div class="bignum-grid">
+      <div class="bignum"><div class="bignum-n">247</div><div class="bignum-l">anúncios publicados</div></div>
+      <div class="bignum"><div class="bignum-n">38</div><div class="bignum-l">recicladores ativos</div></div>
+      <div class="bignum"><div class="bignum-n">4,2t</div><div class="bignum-l">material negociado</div></div>
+      <div class="bignum"><div class="bignum-n">R$18k</div><div class="bignum-l">gerado para condomínios</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Problemas que resolvemos</div>
+    <div class="section-sub">Para os dois lados da reciclagem</div>
+    <div class="prob-grid">
+      <div class="prob"><div class="prob-ic"><i class="ti ti-cash-off"></i></div><h4>Lixo que vira dinheiro perdido</h4><p>Condomínios descartam de graça material que tem valor de mercado. Transformamos isso em receita.</p></div>
+      <div class="prob"><div class="prob-ic"><i class="ti ti-eye-off"></i></div><h4>Preço sem transparência</h4><p>Ninguém sabe se está recebendo o preço justo. Mostramos o preço de referência do mercado local.</p></div>
+      <div class="prob"><div class="prob-ic"><i class="ti ti-route"></i></div><h4>Coleta inviável por volume</h4><p>Agregamos lotes próximos em rotas otimizadas — mais material por viagem, mais valor para todos.</p></div>
+      <div class="prob"><div class="prob-ic"><i class="ti ti-certificate"></i></div><h4>Falta de comprovação ESG</h4><p>Condomínios precisam comprovar destinação correta. Geramos relatório automático de impacto.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Onde atuamos</div>
+    <div class="section-sub">Começando pelo Grande ABC Paulista</div>
+    <div class="locais">
+      <span class="local-chip">Santo André</span>
+      <span class="local-chip">São Bernardo do Campo</span>
+      <span class="local-chip">São Caetano do Sul</span>
+      <span class="local-chip">Diadema</span>
+      <span class="local-chip">Mauá</span>
+      <span class="local-chip">Ribeirão Pires</span>
+      <span class="local-chip">Rio Grande da Serra</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Planos</div>
+    <div class="section-sub">Comece grátis. Pague só quando vender.</div>
+    <div class="pkg-grid">
+      <div class="pkg">
+        <span class="pkg-badge" style="background:var(--bg-tertiary);color:#444441">Avulso</span>
+        <div class="pkg-name">Avulso</div>
+        <div class="pkg-price">Grátis</div>
+        <div class="pkg-desc">Para testar sem compromisso</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Até 2 anúncios/mês</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Comissão 12%</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Painel ESG básico</div>
+      </div>
+      <div class="pkg">
+        <span class="pkg-badge" style="background:var(--amber-50);color:#633806">Bronze</span>
+        <div class="pkg-name">Bronze</div>
+        <div class="pkg-price">R$89,90<span>/mês</span></div>
+        <div class="pkg-desc">Condomínios pequenos até 50 aptos</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Anúncios ilimitados</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Comissão 10%</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Relatório ESG trimestral</div>
+      </div>
+      <div class="pkg feat">
+        <span class="pkg-badge" style="background:var(--teal-50);color:var(--teal-800)">Prata · popular</span>
+        <div class="pkg-name">Prata</div>
+        <div class="pkg-price">R$129,90<span>/mês</span></div>
+        <div class="pkg-desc">Condomínios de 50 a 200 aptos</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Comissão 8%</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Relatório ESG mensal</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Destaque no feed</div>
+      </div>
+      <div class="pkg">
+        <span class="pkg-badge" style="background:#FAC775;color:#412402">Ouro</span>
+        <div class="pkg-name">Ouro</div>
+        <div class="pkg-price">R$159,90<span>/mês</span></div>
+        <div class="pkg-desc">200+ aptos ou administradoras</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Comissão 6%</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Gestor dedicado</div>
+        <div class="pkg-feat"><i class="ti ti-check"></i>Multi-condomínio + API</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Perguntas frequentes</div>
+    <div class="section-sub">As dúvidas mais comuns de síndicos e recicladores</div>
+    <div class="faq-wrap">
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Preciso trocar minha empresa de coleta atual? <i class="ti ti-chevron-down faq-chev"></i></div>
+        <div class="faq-a">Não. O ReciclABC funciona em paralelo. Você pode inclusive convidar a empresa que já atende vocês para participar — se ela já oferece o melhor preço, continua ganhando.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Como garanto que a pesagem é honesta? <i class="ti ti-chevron-down faq-chev"></i></div>
+        <div class="faq-a">O pagamento é sempre pelo peso real, conferido na coleta com foto da balança. Se a diferença para o estimado passa de 15%, abrimos disputa automática. A reputação pública de cada parte protege contra fraudes.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Quem busca o material? <i class="ti ti-chevron-down faq-chev"></i></div>
+        <div class="faq-a">O próprio comprador (reciclador). Ele define seu raio de coleta e só aceita lotes que consegue buscar. Para lotes pequenos, agregamos em rotas otimizadas — várias coletas próximas numa viagem só.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Quanto custa para começar? <i class="ti ti-chevron-down faq-chev"></i></div>
+        <div class="faq-a">Nada. O plano Avulso é gratuito e você só paga a comissão quando vende. Os planos pagos liberam mais recursos conforme o condomínio cresce.</div>
+      </div>
+      <div class="faq-item" onclick="this.classList.toggle('open')">
+        <div class="faq-q">Como recebo o pagamento? <i class="ti ti-chevron-down faq-chev"></i></div>
+        <div class="faq-a">Via PIX automático, em até 24h após a confirmação da coleta, direto na conta do condomínio. Sem boleto, sem intermediário.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Fale com a gente</div>
+    <div class="section-sub">Estamos no Grande ABC, prontos para ajudar</div>
+    <div class="contato-card">
+      <div class="contato-row"><i class="ti ti-brand-whatsapp"></i> (11) 9xxxx-xxxx</div>
+      <div class="contato-row"><i class="ti ti-mail"></i> contato@reciclabc.com.br</div>
+      <div class="contato-row"><i class="ti ti-brand-instagram"></i> @reciclabc</div>
+      <div class="contato-row"><i class="ti ti-map-pin"></i> Santo André, São Paulo</div>
+      <button class="btn btn-wa btn-full" style="margin-top:14px"><i class="ti ti-brand-whatsapp" style="font-size:17px"></i> Falar no WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<div id="page-ads" class="page">
+  <div class="section-h-left">Anúncios disponíveis</div>
+  <div class="section-sub-left">Aceite direto pelo preço de referência ou faça uma oferta personalizada</div>
+
+  <div class="toggle-row">
+    <button class="toggle-btn active" id="tab-todos" onclick="setAdsTab('todos')">Todos os lotes</button>
+    <button class="toggle-btn" id="tab-rotas" onclick="setAdsTab('rotas')">Rotas otimizadas <span class="toggle-pill" id="rotas-count">3</span></button>
+  </div>
+
+  <div id="t-todos">
+    <div class="banner">
+      <div class="banner-t"><i class="ti ti-info-circle" style="font-size:14px"></i> Preço de referência calculado pelo mercado local</div>
+      <div class="banner-p">Aceite com 1 clique pelo preço sugerido — ou faça uma oferta personalizada se quiser pagar diferente.</div>
+    </div>
+    <div class="filters">
+      <div class="filter-field"><label>Material:</label>
+        <select id="f-tipo" onchange="renderAds()">
+          <option value="">Todos</option><option value="plastico">Plástico</option><option value="papel">Papel</option><option value="metal">Metal</option><option value="vidro">Vidro</option>
+        </select>
+      </div>
+      <div class="filter-field"><label>Cidade:</label>
+        <select id="f-cidade" onchange="renderAds()">
+          <option value="">Todas</option><option>Santo André</option><option>São Bernardo do Campo</option><option>São Caetano do Sul</option><option>Diadema</option><option>Mauá</option>
+        </select>
+      </div>
+      <div class="filter-field"><label>Mín kg:</label><input type="number" id="f-peso" value="0" style="width:60px" oninput="renderAds()"></div>
+    </div>
+    <div id="ads-list" class="ads-grid"></div>
+  </div>
+
+  <div id="t-rotas" style="display:none">
+    <div class="banner banner-amber">
+      <div class="banner-t"><i class="ti ti-route" style="font-size:14px"></i> Coleta agregada — vários lotes, uma única viagem</div>
+      <div class="banner-p">Lotes próximos em sequência otimizada. Compense a gasolina e o tempo coletando 60–200kg numa rodada só.</div>
+    </div>
+    <div id="rotas-list"></div>
+  </div>
+</div>
+
+<div id="page-pub" class="page">
+  <div class="section-h-left">Publicar anúncio</div>
+  <div class="section-sub-left">Siga o passo a passo — leva menos de 3 minutos</div>
+  <div class="pub-grid">
+    <div class="pub-steps">
+      <div class="pub-step"><div class="pub-step-n">1</div><div><h4>Separe e pese</h4><p>Junte o reciclável por tipo. Uma estimativa de peso já basta para começar.</p></div></div>
+      <div class="pub-step"><div class="pub-step-n">2</div><div><h4>Fotografe</h4><p>Uma foto clara do material ajuda os compradores a darem ofertas melhores.</p></div></div>
+      <div class="pub-step"><div class="pub-step-n">3</div><div><h4>Descreva</h4><p>Tipo, peso estimado, condição (limpo/separado) e local de retirada.</p></div></div>
+      <div class="pub-step"><div class="pub-step-n">4</div><div><h4>Defina o prazo</h4><p>Quanto tempo os compradores têm para responder (24h a 7 dias).</p></div></div>
+      <div class="pub-step"><div class="pub-step-n">5</div><div><h4>Publique</h4><p>O anúncio vai ao ar. Você acompanha as ofertas aqui e pelo WhatsApp.</p></div></div>
+      <div style="background:#E8F4EC;border-radius:10px;padding:14px;margin-top:10px">
+        <div style="font-size:13px;color:var(--teal-800);font-weight:500;margin-bottom:5px"><i class="ti ti-brand-whatsapp" style="color:#25A65B"></i> Prefere pelo WhatsApp?</div>
+        <div style="font-size:12px;color:var(--teal-600);line-height:1.5">Mande a foto no nosso WhatsApp e o bot publica para você respondendo 4 perguntas.</div>
+      </div>
+    </div>
+    <div class="pub-form">
+      <div class="field"><label>Título do anúncio</label><input type="text" placeholder="Ex: Garrafas PET prensadas — retirada na portaria"></div>
+      <div class="field"><label>Tipo de material</label>
+        <div class="chips">
+          <button class="chip sel" onclick="this.classList.toggle('sel')">Plástico</button>
+          <button class="chip" onclick="this.classList.toggle('sel')">Vidro</button>
+          <button class="chip" onclick="this.classList.toggle('sel')">Papel</button>
+          <button class="chip" onclick="this.classList.toggle('sel')">Metal</button>
+        </div>
+      </div>
+      <div class="field"><label>Foto do material</label>
+        <div class="upload" onclick="document.getElementById('up-tx').innerHTML='<span style=\'color:var(--teal-400);font-weight:500\'><i class=ti ti-check></i> foto adicionada</span>'">
+          <i class="ti ti-camera" style="font-size:26px;color:var(--teal-400)"></i>
+          <div id="up-tx" style="margin-top:6px">Clique para enviar foto</div>
+        </div>
+      </div>
+      <div class="field"><label>Peso estimado (kg)</label><input type="number" placeholder="Ex: 25"></div>
+      <div class="field"><label>Descrição</label><textarea placeholder="Ex: Garrafas PET limpas e prensadas. Retirada na portaria."></textarea></div>
+      <div class="field"><label>Cidade</label>
+        <select><option>Santo André</option><option>São Bernardo do Campo</option><option>São Caetano do Sul</option><option>Diadema</option><option>Mauá</option></select>
+      </div>
+      <div class="field"><label>Prazo para ofertas</label>
+        <select><option>24 horas</option><option>48 horas</option><option>72 horas</option><option>7 dias</option></select>
+      </div>
+      <button class="btn btn-teal btn-full" onclick="alert('Anúncio publicado! Você acompanha as ofertas na aba Anúncios e pelo WhatsApp.')"><i class="ti ti-speakerphone" style="font-size:15px"></i> Publicar anúncio</button>
+    </div>
+  </div>
+</div>
+
+<div id="page-sobre" class="page">
+  <div class="sobre-hero">
+    <h1>Quem somos</h1>
+    <p>O ReciclABC é uma plataforma do Grande ABC que conecta condomínios e compradores de recicláveis, transformando o que era descarte em renda e impacto. Nascemos da percepção de que o material reciclável produzido em condomínios já está separado — só faltava uma rede que organizasse o melhor destino para ele.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-h">O que fazemos</div>
+    <div class="section-sub">Resolvemos dois problemas no mesmo movimento</div>
+    <div class="prob-grid">
+      <div class="prob"><div class="prob-ic"><i class="ti ti-building-community"></i></div><h4>Para condomínios</h4><p>Transformamos a coleta seletiva já existente em receita para o condomínio, com relatório ESG automático e zero trabalho extra para o zelador.</p></div>
+      <div class="prob"><div class="prob-ic"><i class="ti ti-truck-loading"></i></div><h4>Para recicladores</h4><p>Entregamos lotes próximos já separados e fotografados, agregados em rotas otimizadas que tornam a coleta economicamente viável.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Como fazemos</div>
+    <div class="section-sub">Tecnologia simples, decisões humanas, resultado mensurável</div>
+    <div class="steps-grid">
+      <div class="step"><div class="step-n"><i class="ti ti-brand-whatsapp"></i></div><h4>Entrada pelo WhatsApp</h4><p>Onde síndicos e recicladores já vivem — sem app extra, sem fricção.</p></div>
+      <div class="step"><div class="step-n"><i class="ti ti-scale"></i></div><h4>Preço de referência</h4><p>Mercado local define o preço justo. Aceite com 1 clique ou negocie.</p></div>
+      <div class="step"><div class="step-n"><i class="ti ti-route"></i></div><h4>Coleta agregada</h4><p>Vários lotes próximos em uma única rota — eficiente para o reciclador.</p></div>
+      <div class="step"><div class="step-n"><i class="ti ti-shield-check"></i></div><h4>Reputação bidirecional</h4><p>Estrelas dos dois lados protegem todos contra fraude e calote.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="mv-grid">
+      <div class="mv-card">
+        <div class="mv-label">Missão</div>
+        <h3>Transformar o descarte em renda e impacto.</h3>
+        <p>Conectamos as duas pontas da reciclagem residencial do Grande ABC para que cada quilo de material chegue ao melhor destino possível — gerando dinheiro para os geradores, eficiência para os compradores e benefício para o planeta.</p>
+      </div>
+      <div class="mv-card">
+        <div class="mv-label">Visão</div>
+        <h3>Ser a rede de referência da reciclagem residencial no Brasil.</h3>
+        <p>Começamos pelo Grande ABC porque conhecemos a região. Vamos crescer para outras cidades da Grande São Paulo e, depois, para todo o Brasil, levando o mesmo modelo de transparência, eficiência e impacto comprovado.</p>
+      </div>
+      <div class="mv-card">
+        <div class="mv-label">Valores</div>
+        <h3>Os princípios que guiam cada decisão.</h3>
+        <p>Transparência radical com os dois lados, simplicidade acima de sofisticação, reputação como pilar da confiança, impacto mensurável e local primeiro.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Nossos valores em detalhe</div>
+    <div class="section-sub">O que cada um significa na prática</div>
+    <div class="valores-grid">
+      <div class="valor-card">
+        <div class="valor-ic"><i class="ti ti-eye"></i></div>
+        <h4>Transparência</h4>
+        <p>Preço, peso, comissão e destinação são públicos. Nada acontece nos bastidores.</p>
+      </div>
+      <div class="valor-card">
+        <div class="valor-ic"><i class="ti ti-bolt"></i></div>
+        <h4>Simplicidade</h4>
+        <p>3 minutos para publicar, 1 clique para aceitar. Tecnologia que serve, não complica.</p>
+      </div>
+      <div class="valor-card">
+        <div class="valor-ic"><i class="ti ti-shield"></i></div>
+        <h4>Confiança</h4>
+        <p>Reputação bidirecional e disputa automática protegem os dois lados em cada transação.</p>
+      </div>
+      <div class="valor-card">
+        <div class="valor-ic"><i class="ti ti-leaf"></i></div>
+        <h4>Impacto real</h4>
+        <p>Medimos em kg, R$ e CO₂. Não em promessas — em comprovantes auditáveis.</p>
+      </div>
+      <div class="valor-card">
+        <div class="valor-ic"><i class="ti ti-map-pin"></i></div>
+        <h4>Local primeiro</h4>
+        <p>Conhecer cada bairro do ABC vale mais do que escalar sem entender a região.</p>
+      </div>
+      <div class="valor-card">
+        <div class="valor-ic"><i class="ti ti-users"></i></div>
+        <h4>Ganha-ganha</h4>
+        <p>Negócio só fecha quando os dois lados ganham. Caso contrário, ajustamos a estrutura.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-h">Fale com a gente</div>
+    <div class="section-sub">Estamos no Grande ABC, prontos para ajudar</div>
+    <div class="contato-card">
+      <div class="contato-row"><i class="ti ti-brand-whatsapp"></i> (11) 9xxxx-xxxx</div>
+      <div class="contato-row"><i class="ti ti-mail"></i> contato@reciclabc.com.br</div>
+      <div class="contato-row"><i class="ti ti-brand-instagram"></i> @reciclabc</div>
+      <div class="contato-row"><i class="ti ti-map-pin"></i> Santo André, São Paulo</div>
+      <button class="btn btn-wa btn-full" style="margin-top:14px"><i class="ti ti-brand-whatsapp" style="font-size:17px"></i> Falar no WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<div id="page-imp" class="page">
+  <div id="imp-content"></div>
+</div>
+
+</div>
+
+<div class="modal-ov" id="auth-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="auth-title">Entrar</div>
+      <button class="modal-close" onclick="closeAuth()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="tabsel">
+      <button id="auth-tab-condo" class="active teal" onclick="setAuthPerfil('condo')">Condomínio</button>
+      <button id="auth-tab-rec" onclick="setAuthPerfil('rec')">Reciclador</button>
+    </div>
+    <div id="auth-body"></div>
+  </div>
+</div>
+
+<div class="modal-ov" id="detail-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Detalhes da coleta</div>
+      <button class="modal-close" onclick="fecharDetalhe()"><i class="ti ti-x"></i></button>
+    </div>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<button class="back-top" id="back-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Voltar ao topo" title="Voltar ao topo">
+  <i class="ti ti-arrow-up"></i>
+</button>
+  <p><strong>ReciclABC</strong> · A rede de reciclagem do Grande ABC Paulista</p>
+  <p>Versão beta · <a onclick="nav('home')">Início</a> · <a onclick="nav('ads')">Anúncios</a> · <a onclick="nav('sobre')">Sobre nós</a> · <a href="mailto:contato@reciclabc.com.br">contato@reciclabc.com.br</a></p>
+</footer>
+
+<script>
+// ========================================
+// CONFIGURAÇÃO DO SUPABASE
+// ========================================
+const SUPABASE_URL = 'https://uvgzwxxzydbygylxhzma.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_fHbbqRYBYnzqXu6FqQFLBw_U9q80cem';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let authMode = 'login';
+let authPerfil = 'condo';
+
+const ads = [
+  { tipo:'plastico', emoji:'PET', badge:'b-plastico', label:'Plástico', titulo:'Garrafas PET — ~50kg', loc:'Edifício em Santo André · 120 aptos', cidade:'Santo André', dist:'3km', precoRef:0.85, peso:50, rota:'A' },
+  { tipo:'papel', emoji:'PAP', badge:'b-papel', label:'Papel', titulo:'Papelão desmontado — ~30kg', loc:'Edifício em Santo André · 80 aptos', cidade:'Santo André', dist:'4km', precoRef:0.45, peso:30, rota:'A' },
+  { tipo:'metal', emoji:'AL', badge:'b-metal', label:'Metal', titulo:'Latas de alumínio — ~12kg', loc:'Condomínio em Santo André · 60 aptos', cidade:'Santo André', dist:'2km', precoRef:3.20, peso:12, rota:'A' },
+  { tipo:'plastico', emoji:'PP', badge:'b-plastico', label:'Plástico', titulo:'Baldes e potes PP — ~25kg', loc:'Edifício em Mauá · 90 aptos', cidade:'Mauá', dist:'8km', precoRef:0.55, peso:25, rota:'B' },
+  { tipo:'papel', emoji:'PAP', badge:'b-papel', label:'Papel', titulo:'Papelão — ~40kg', loc:'Edifício em Mauá · 110 aptos', cidade:'Mauá', dist:'8km', precoRef:0.42, peso:40, rota:'B' },
+  { tipo:'vidro', emoji:'VID', badge:'b-vidro', label:'Vidro', titulo:'Vidro misto — ~15kg', loc:'Edifício em S. Bernardo · 70 aptos', cidade:'São Bernardo do Campo', dist:'6km', precoRef:0.30, peso:15, rota:'C' },
+  { tipo:'metal', emoji:'FE', badge:'b-metal', label:'Metal', titulo:'Sucata ferrosa — ~70kg', loc:'Condomínio em Diadema · 200 aptos', cidade:'Diadema', dist:'11km', precoRef:0.65, peso:70, rota:null },
+  { tipo:'papel', emoji:'REV', badge:'b-papel', label:'Papel', titulo:'Revistas — ~18kg', loc:'Edifício em Santo André · 50 aptos', cidade:'Santo André', dist:'4km', precoRef:0.20, peso:18, rota:'A' },
+];
+
+const rotas = [
+  { id:'A', nome:'Santo André centro', distancia:'12km', tempo:'2h estimadas' },
+  { id:'B', nome:'Mauá / Ribeirão', distancia:'18km', tempo:'2h30 estimadas' },
+  { id:'C', nome:'S. Bernardo zona norte', distancia:'15km', tempo:'2h estimadas' },
+];
+
+function nav(p) {
+  ['home','ads','pub','sobre','imp'].forEach(x => {
+    const pageEl = document.getElementById('page-'+x);
+    const navEl = document.getElementById('nav-'+x);
+    if (pageEl) pageEl.classList.toggle('active', x===p);
+    if (navEl) navEl.classList.toggle('active', x===p);
+  });
+  if (p === 'ads') { renderAds(); renderRotas(); }
+  if (p === 'imp') renderImpacto();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+window.addEventListener('scroll', () => {
+  const btn = document.getElementById('back-top-btn');
+  if (!btn) return;
+  if (window.scrollY > 400) btn.classList.add('visible');
+  else btn.classList.remove('visible');
+});
+
+async function renderAds() {
+  const tipo = document.getElementById('f-tipo').value;
+  const cidade = document.getElementById('f-cidade').value;
+  const peso = parseInt(document.getElementById('f-peso').value) || 0;
+  const el = document.getElementById('ads-list');
+
+  el.innerHTML = '<div class="empty">Carregando anúncios...</div>';
+
+  // Busca no Supabase
+  let query = sb.from('anuncios').select('*').eq('status', 'aberto').gte('peso_estimado_kg', peso);
+  if (tipo) query = query.eq('tipo', tipo);
+  if (cidade) query = query.eq('cidade', cidade);
+
+  const { data, error } = await query;
+
+  let list;
+  if (error) {
+    console.error('Erro Supabase:', error);
+    // Fallback: usa os dados estáticos se o Supabase falhar
+    list = ads.filter(a =>
+      (!tipo || a.tipo === tipo) &&
+      (!cidade || a.cidade === cidade) &&
+      a.peso >= peso
+    );
+  } else if (!data || data.length === 0) {
+    // Se não veio nada do banco, também usa os estáticos (útil enquanto o banco não tem dados)
+    list = ads.filter(a =>
+      (!tipo || a.tipo === tipo) &&
+      (!cidade || a.cidade === cidade) &&
+      a.peso >= peso
+    );
+  } else {
+    // Adapta os dados do Supabase para o mesmo formato dos estáticos
+    list = data.map(a => ({
+      tipo: a.tipo,
+      emoji: a.tipo === 'plastico' ? 'PET' : a.tipo === 'papel' ? 'PAP' : a.tipo === 'metal' ? 'AL' : 'VID',
+      badge: 'b-' + a.tipo,
+      label: a.tipo.charAt(0).toUpperCase() + a.tipo.slice(1),
+      titulo: a.titulo,
+      loc: `Condomínio em ${a.cidade}`,
+      cidade: a.cidade,
+      dist: '—',
+      precoRef: parseFloat(a.preco_referencia) || 0,
+      peso: parseFloat(a.peso_estimado_kg) || 0,
+      rota: null
+    }));
+  }
+
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">Nenhum anúncio com esses filtros. Tente ampliar a busca.</div>';
+    return;
+  }
+  el.innerHTML = list.map(a => `
+    <div class="ad">
+      <div class="ad-photo">${a.emoji}${a.rota?`<span class="ad-route-tag"><i class="ti ti-route" style="font-size:10px"></i> rota ${a.rota}</span>`:''}</div>
+      <div class="ad-body">
+        <span class="ad-badge ${a.badge}">${a.label}</span>
+        <div class="ad-title">${a.titulo}</div>
+        <div class="ad-loc"><i class="ti ti-map-pin" style="font-size:12px"></i> ${a.loc} · ${a.dist}</div>
+        <div class="ad-price-row">
+          <div class="ad-price-l">preço de referência</div>
+          <div class="ad-price-v">R$ ${a.precoRef.toFixed(2)}/kg</div>
+          <div class="ad-price-r">≈ R$ ${(a.precoRef * a.peso).toFixed(2)} total</div>
+        </div>
+        <div class="ad-actions">
+          <button class="btn btn-teal" onclick="alert('Lote aceito! O condomínio será notificado. Combine a coleta no chat da plataforma.')"><i class="ti ti-check" style="font-size:13px"></i> Aceitar</button>
+          <button class="btn btn-out" onclick="alert('Faça uma oferta diferente do preço de referência. O síndico decide se aceita.')"><i class="ti ti-gavel" style="font-size:13px"></i> Oferecer</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderRotas() {
+  document.getElementById('rotas-list').innerHTML = rotas.map(r => {
+    const itens = ads.filter(a => a.rota === r.id);
+    const totalPeso = itens.reduce((s,a)=>s+a.peso, 0);
+    const totalValor = itens.reduce((s,a)=>s+a.peso*a.precoRef, 0);
+    return `<div class="route-card">
+      <div class="route-head">
+        <div class="route-ic"><i class="ti ti-route"></i></div>
+        <div><div class="route-title">Rota ${r.nome}</div><div class="route-sub">${itens.length} lotes · 1 viagem</div></div>
+        <span class="route-badge">economiza tempo</span>
+      </div>
+      <div class="route-stats">
+        <div class="route-stat"><strong>${totalPeso}kg</strong> total</div>
+        <div class="route-stat">≈<strong> R$ ${totalValor.toFixed(2)}</strong> de material</div>
+        <div class="route-stat">${r.distancia} · ${r.tempo}</div>
+      </div>
+      <div class="route-items">
+        ${itens.map(a => `<span class="route-pin">${a.label} · ${a.peso}kg · ${a.dist}</span>`).join('')}
+      </div>
+      <button class="btn btn-amber btn-full" onclick="alert('Rota reservada! Você tem 24h para combinar a coleta com cada condomínio. Os lotes ficam bloqueados para outros recicladores enquanto isso.')"><i class="ti ti-truck" style="font-size:14px"></i> Reservar esta rota</button>
+    </div>`;
+  }).join('');
+}
+
+function setAdsTab(tab) {
+  document.getElementById('tab-todos').classList.toggle('active', tab==='todos');
+  document.getElementById('tab-rotas').classList.toggle('active', tab==='rotas');
+  document.getElementById('t-todos').style.display = tab==='todos' ? 'block' : 'none';
+  document.getElementById('t-rotas').style.display = tab==='rotas' ? 'block' : 'none';
+}
+
+function openAuth(mode) {
+  authMode = mode.startsWith('signup') ? 'signup' : 'login';
+  if (mode === 'signup-rec') authPerfil = 'rec';
+  document.getElementById('auth-modal').classList.add('open');
+  renderAuth();
+}
+function closeAuth() { document.getElementById('auth-modal').classList.remove('open'); }
+function setAuthPerfil(p) { authPerfil = p; renderAuth(); }
+
+function renderAuth() {
+  document.getElementById('auth-title').textContent = authMode==='login' ? 'Entrar' : 'Criar conta';
+  const tabC = document.getElementById('auth-tab-condo');
+  const tabR = document.getElementById('auth-tab-rec');
+  tabC.className = 'active teal';
+  tabR.className = '';
+  if (authPerfil === 'rec') { tabC.className = ''; tabR.className = 'active coral'; }
+
+  const isRec = authPerfil === 'rec';
+  const btnClass = isRec ? 'btn-coral' : 'btn-teal';
+  const accent = isRec ? 'var(--coral-400)' : 'var(--teal-400)';
+  let html = '';
+
+  if (authMode === 'login') {
+    html += `<div class="field"><label>Usuário</label><input type="text" id="login-user" placeholder="seu usuário ou e-mail"></div>`;
+    html += `<div class="field"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••"></div>`;
+    html += `<button class="btn ${btnClass} btn-full" onclick="doAuth()">Entrar</button>`;
+    html += `<div style="text-align:center;margin-top:14px;font-size:13px;color:var(--text-secondary)">Primeira vez? <a style="color:${accent};cursor:pointer" onclick="toggleAuthMode()">Criar conta</a></div>`;
+  } else {
+    html += `<div class="field"><label>Nome ${isRec?'/ razão social':'do condomínio'}</label><input type="text" placeholder="${isRec?'Ex: Cooperativa ABC':'Ex: Ed. Sol Nascente'}"></div>`;
+    if (!isRec) {
+      html += `<div class="field"><label>Tipo de acesso</label>
+        <select id="signup-acesso">
+          <option value="zelador">Zelador / Síndico — administra anúncios</option>
+          <option value="morador">Morador — visualiza apenas</option>
+        </select>
+      </div>`;
+      html += `<div class="field"><label>Identificação ${authPerfil==='condo'?'(CPF ou apartamento)':''}</label><input type="text" placeholder="Ex: 123.456.789-00 ou Apto 42"></div>`;
+    }
+    if (isRec) html += `<div class="field"><label>CPF ou CNPJ</label><input type="text" placeholder="000.000.000-00"></div>`;
+    if (!isRec) html += `<div class="field"><label>Número de apartamentos</label><input type="number" placeholder="Ex: 120" min="1"></div>`;
+    html += `<div class="field"><label>CEP</label><div style="display:flex;gap:8px"><input type="text" id="signup-cep" placeholder="00000-000" maxlength="9" onblur="buscarCEP()" oninput="formatCEP(this)" style="flex:1"><button class="btn btn-out btn-sm" type="button" onclick="buscarCEP()" style="flex-shrink:0">Buscar</button></div><div id="cep-status" style="font-size:11px;color:var(--text-secondary);margin-top:4px"></div></div>`;
+    html += `<div class="field"><label>Endereço</label><input type="text" id="signup-end" placeholder="Rua, avenida..."></div>`;
+    html += `<div style="display:flex;gap:8px"><div class="field" style="flex:1"><label>Número</label><input type="text" id="signup-num" placeholder="Ex: 123"></div><div class="field" style="flex:2"><label>Complemento</label><input type="text" id="signup-comp" placeholder="Sala, bloco..."></div></div>`;
+    html += `<div class="field"><label>Bairro</label><input type="text" id="signup-bairro"></div>`;
+    html += `<div style="display:flex;gap:8px"><div class="field" style="flex:2"><label>Cidade</label><input type="text" id="signup-cidade"></div><div class="field" style="flex:1"><label>UF</label><input type="text" id="signup-uf" maxlength="2"></div></div>`;
+    html += `<div class="field"><label>Telefone / celular 1</label><input type="tel" placeholder="(11) 9xxxx-xxxx" required></div>`;
+    html += `<div class="field"><label>Telefone / celular 2 <span style="color:var(--text-tertiary);font-weight:400">(opcional)</span></label><input type="tel" placeholder="(11) xxxx-xxxx"></div>`;
+    html += `<div class="field"><label>E-mail</label><input type="email" placeholder="seu@email.com"></div>`;
+    html += `<div class="field"><label>Senha</label><input type="password" placeholder="mínimo 8 caracteres"></div>`;
+    html += `<button class="btn ${btnClass} btn-full" onclick="doAuth()">Criar conta grátis</button>`;
+    if (!isRec) html += `<button class="btn btn-wa btn-full" style="margin-top:10px" onclick="closeAuth();alert('Você será direcionado ao WhatsApp do ReciclABC.')"><i class="ti ti-brand-whatsapp" style="font-size:16px"></i> Cadastrar pelo WhatsApp</button>`;
+    html += `<div style="text-align:center;margin-top:14px;font-size:13px;color:var(--text-secondary)">Já tem conta? <a style="color:${accent};cursor:pointer" onclick="toggleAuthMode()">Entrar</a></div>`;
+  }
+
+  document.getElementById('auth-body').innerHTML = html;
+}
+
+function formatCEP(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5,8);
+  input.value = v;
+}
+
+async function buscarCEP() {
+  const cepEl = document.getElementById('signup-cep');
+  const status = document.getElementById('cep-status');
+  if (!cepEl || !status) return;
+  const cep = cepEl.value.replace(/\D/g, '');
+  if (cep.length !== 8) { status.textContent = 'Digite um CEP com 8 dígitos.'; status.style.color = 'var(--coral-400)'; return; }
+  status.textContent = 'Buscando...'; status.style.color = 'var(--text-secondary)';
+  try {
+    const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+    const d = await r.json();
+    if (d.erro) { status.textContent = 'CEP não encontrado.'; status.style.color = 'var(--coral-400)'; return; }
+    document.getElementById('signup-end').value = d.logradouro || '';
+    document.getElementById('signup-bairro').value = d.bairro || '';
+    document.getElementById('signup-cidade').value = d.localidade || '';
+    document.getElementById('signup-uf').value = d.uf || '';
+    status.textContent = 'Endereço preenchido!'; status.style.color = 'var(--teal-400)';
+  } catch (e) {
+    status.textContent = 'Erro ao buscar CEP. Preencha manualmente.'; status.style.color = 'var(--coral-400)';
+  }
+}
+
+let usuarioLogado = null;
+
+function toggleAuthMode() { authMode = authMode==='login' ? 'signup' : 'login'; renderAuth(); }
+
+async function doAuth() {
+  const isRec = authPerfil === 'rec';
+  let acesso = 'zelador';
+
+  // Se é signup, tenta salvar no Supabase
+  if (authMode === 'signup') {
+    if (!isRec) {
+      const sel = document.getElementById('signup-acesso');
+      if (sel) acesso = sel.value;
+
+      // Coleta os dados do formulário de cadastro de condomínio
+      const inputs = document.querySelectorAll('#auth-body input, #auth-body select');
+      const [nome, tipoAcesso, identificacao, numAptos, cep, endereco, numero, complemento, bairro, cidade, uf, tel1, tel2, email, senha] = [
+        inputs[0]?.value, sel?.value, inputs[1]?.value, inputs[2]?.value,
+        document.getElementById('signup-cep')?.value,
+        document.getElementById('signup-end')?.value,
+        document.getElementById('signup-num')?.value,
+        document.getElementById('signup-comp')?.value,
+        document.getElementById('signup-bairro')?.value,
+        document.getElementById('signup-cidade')?.value,
+        document.getElementById('signup-uf')?.value,
+        inputs[inputs.length - 4]?.value, inputs[inputs.length - 3]?.value,
+        inputs[inputs.length - 2]?.value, inputs[inputs.length - 1]?.value
+      ];
+
+      const { data, error } = await sb.from('condominios').insert({
+        nome: nome || 'Sem nome',
+        cidade: cidade || 'Santo André',
+        num_apartamentos: parseInt(numAptos) || null,
+        cep: cep || null,
+        endereco: endereco || null,
+        numero: numero || null,
+        bairro: bairro || null,
+        uf: uf || null,
+        telefone: tel1 || null,
+        telefone_2: tel2 || null,
+        email: email || null,
+        responsavel: identificacao || null
+      }).select();
+
+      if (error) {
+        console.error('Erro ao salvar condomínio:', error);
+        alert('Erro ao salvar cadastro no banco: ' + error.message + '\n\nSeu login local foi criado, mas os dados não foram gravados.');
+      } else {
+        console.log('Condomínio salvo no Supabase:', data);
+        alert('Cadastro salvo com sucesso no banco! ID: ' + data[0].id);
+      }
+    } else {
+      // Cadastro de reciclador
+      const inputs = document.querySelectorAll('#auth-body input');
+      const nome = inputs[0]?.value;
+      const cpfCnpj = inputs[1]?.value;
+
+      const { data, error } = await sb.from('recicladores').insert({
+        nome: nome || 'Sem nome',
+        cpf_cnpj: cpfCnpj || null,
+        cidade: document.getElementById('signup-cidade')?.value || null,
+        telefone: inputs[inputs.length - 4]?.value || null,
+        telefone_2: inputs[inputs.length - 3]?.value || null
+      }).select();
+
+      if (error) {
+        console.error('Erro ao salvar reciclador:', error);
+        alert('Erro ao salvar cadastro no banco: ' + error.message);
+      } else {
+        console.log('Reciclador salvo no Supabase:', data);
+        alert('Cadastro salvo com sucesso no banco! ID: ' + data[0].id);
+      }
+    }
+  } else if (authMode === 'login' && !isRec) {
+    acesso = prompt('Demo: digite "zelador" para acesso administrativo ou "morador" para visualização', 'zelador') || 'zelador';
+  }
+
+  usuarioLogado = {
+    perfil: authPerfil,
+    acesso: acesso,
+    nome: isRec ? 'Pedro Recicla' : (acesso === 'zelador' ? 'João Silva (zelador)' : 'Maria Souza (Apto 42)')
+  };
+  closeAuth();
+  atualizarNav();
+  renderImpacto();
+  nav('imp');
+}
+
+function atualizarNav() {
+  const navImp = document.getElementById('nav-imp');
+  const navCta = document.getElementById('nav-cta');
+  if (usuarioLogado) {
+    navImp.style.display = 'inline-block';
+    navCta.innerHTML = `<span style="font-size:12px;color:var(--text-secondary);margin-right:8px">Olá, ${usuarioLogado.nome.split(' ')[0]}</span><button class="btn btn-out btn-sm" onclick="sair()"><i class="ti ti-logout" style="font-size:14px"></i> Sair</button>`;
+  } else {
+    navImp.style.display = 'none';
+    navCta.innerHTML = `<button class="btn btn-out btn-sm" onclick="openAuth('login')"><i class="ti ti-login" style="font-size:14px"></i> Entrar</button><button class="btn btn-teal btn-sm" onclick="openAuth('signup')">Cadastrar</button>`;
+  }
+}
+
+function sair() {
+  usuarioLogado = null;
+  atualizarNav();
+  nav('home');
+}
+
+renderAds();
+renderRotas();
+atualizarNav();
+
+const historico = [
+  { id:1, data:'12/06/2025', tipo:'Plástico', emoji:'PET', peso:48, valor:43.68, comprador:'Pedro Recicla', desc:'Garrafas PET prensadas, limpas. Coleta na portaria às 9h. Foto da balança confirmada.', foto:'PET' },
+  { id:2, data:'05/06/2025', tipo:'Papel', emoji:'PAP', peso:22, valor:9.90, comprador:'Cooperativa ABC', desc:'Papelão desmontado, sem contaminação. Coleta agregada com 2 condomínios próximos.', foto:'PAP' },
+  { id:3, data:'28/05/2025', tipo:'Metal', emoji:'AL', peso:12, valor:38.40, comprador:'Plastimax', desc:'Latas de alumínio amassadas e separadas. Coleta às 14h, pesagem registrada.', foto:'AL' },
+];
+
+const historicoReciclador = [
+  { id:1, data:'12/06/2025', tipo:'Plástico', emoji:'PET', peso:48, valor:43.68, fornecedor:'Edifício em Santo André · 120 aptos', regiao:'Santo André centro', precoKg:0.91, rota:'Rota A · 3 lotes', desc:'Garrafas PET limpas e prensadas. Material de alta qualidade, sem contaminação. Coleta combinada via plataforma, retirada na portaria às 9h.' },
+  { id:2, data:'08/06/2025', tipo:'Papel', emoji:'PAP', peso:65, valor:29.25, fornecedor:'Edifício em Mauá · 110 aptos', regiao:'Mauá / Ribeirão', precoKg:0.45, rota:'Rota B · 2 lotes', desc:'Papelão desmontado. Coleta agregada com mais 1 condomínio próximo — economia de tempo e combustível.' },
+  { id:3, data:'28/05/2025', tipo:'Metal', emoji:'AL', peso:12, valor:38.40, fornecedor:'Condomínio em Santo André · 60 aptos', regiao:'Santo André centro', precoKg:3.20, rota:'Lote único', desc:'Latas de alumínio amassadas. Material premium, ticket alto por kg.' },
+  { id:4, data:'22/05/2025', tipo:'Plástico', emoji:'PP', peso:34, valor:18.70, fornecedor:'Edifício em Mauá · 90 aptos', regiao:'Mauá / Ribeirão', precoKg:0.55, rota:'Rota B · 2 lotes', desc:'Baldes e potes PP rígidos limpos.' },
+  { id:5, data:'15/05/2025', tipo:'Papel', emoji:'PAP', peso:28, valor:12.60, fornecedor:'Edifício em Santo André · 80 aptos', regiao:'Santo André centro', precoKg:0.45, rota:'Rota A · 3 lotes', desc:'Papelão desmontado, condomínio recorrente. Quarto mês consecutivo de coleta.' },
+];
+
+function renderImpacto() {
+  if (!usuarioLogado) {
+    document.getElementById('imp-content').innerHTML = `
+      <div style="text-align:center;padding:60px 20px">
+        <i class="ti ti-lock" style="font-size:48px;color:var(--text-tertiary)"></i>
+        <h2 style="font-size:20px;font-weight:500;margin:14px 0 8px">Faça login para ver seu painel</h2>
+        <p style="color:var(--text-secondary);font-size:14px;margin-bottom:18px">Esta área é exclusiva para condomínios e recicladores cadastrados.</p>
+        <button class="btn btn-teal" onclick="openAuth('login')"><i class="ti ti-login" style="font-size:15px"></i> Entrar</button>
+      </div>`;
+    return;
+  }
+
+  const u = usuarioLogado;
+  if (u.perfil === 'rec') renderImpactoReciclador(u);
+  else renderImpactoCondo(u);
+}
+
+function renderImpactoCondo(u) {
+  const isMorador = u.acesso === 'morador';
+  let html = `
+    <div class="impact-head">
+      <div>
+        <div class="section-h-left">Meu impacto</div>
+        <div class="section-sub-left" style="margin-bottom:0">Ed. Sol Nascente · Santo André · 120 aptos</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div style="display:flex;gap:8px;align-items:center;background:var(--bg-secondary);padding:8px 12px;border-radius:var(--radius-md)">
+          <i class="ti ti-user-circle" style="font-size:20px;color:var(--teal-400)"></i>
+          <div style="text-align:right">
+            <div style="font-size:13px;font-weight:500">${u.nome}</div>
+            <div style="font-size:11px;color:var(--text-secondary)">${isMorador?'Visualização':'Administra anúncios'}</div>
+          </div>
+        </div>
+        ${!isMorador ? `<button class="btn btn-out btn-sm" onclick="alert('Gerando relatório ESG em PDF...')"><i class="ti ti-file-text" style="font-size:14px"></i> Extrair relatório PDF</button>` : ''}
+      </div>
+    </div>
+
+    <div class="esg-card" style="background:var(--teal-50);border-color:var(--teal-400)">
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <div style="width:48px;height:48px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ti-user-shield" style="font-size:24px;color:var(--teal-600)"></i>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:11px;color:var(--teal-600);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Responsável pelo edifício</div>
+          <div style="font-size:15px;font-weight:500;color:var(--teal-800)">João Silva — Zelador-chefe</div>
+          <div style="font-size:12px;color:var(--teal-600)">Contato: (11) 98765-4321 · zeladoria@solnascente.com.br</div>
+        </div>
+        ${isMorador ? '<button class="btn btn-wa btn-sm"><i class="ti ti-brand-whatsapp" style="font-size:14px"></i> Falar com o zelador</button>' : ''}
+      </div>
+    </div>
+
+    <div class="bignum-grid" style="margin-bottom:18px">
+      <div class="bignum"><div class="bignum-n">82kg</div><div class="bignum-l">reciclado</div></div>
+      <div class="bignum"><div class="bignum-n">R$146</div><div class="bignum-l">arrecadado</div></div>
+      <div class="bignum"><div class="bignum-n">41kg</div><div class="bignum-l">CO₂ evitado</div></div>
+      <div class="bignum"><div class="bignum-n">12</div><div class="bignum-l">coletas realizadas</div></div>
+    </div>
+
+    <div class="esg-card">
+      <div style="font-size:15px;font-weight:500;margin-bottom:14px">Composição do material reciclado</div>
+      <div class="esg-item"><div class="esg-top"><span>Plástico</span><span style="color:var(--teal-400);font-weight:500">38kg (46%)</span></div><div class="esg-track"><div class="esg-fill" style="width:46%;background:var(--teal-400)"></div></div></div>
+      <div class="esg-item"><div class="esg-top"><span>Papel</span><span style="color:#378ADD;font-weight:500">22kg (27%)</span></div><div class="esg-track"><div class="esg-fill" style="width:27%;background:#378ADD"></div></div></div>
+      <div class="esg-item"><div class="esg-top"><span>Metal</span><span style="color:var(--amber-400);font-weight:500">14kg (17%)</span></div><div class="esg-track"><div class="esg-fill" style="width:17%;background:var(--amber-400)"></div></div></div>
+      <div class="esg-item"><div class="esg-top"><span>Vidro</span><span style="color:#888780;font-weight:500">8kg (10%)</span></div><div class="esg-track"><div class="esg-fill" style="width:10%;background:#888780"></div></div></div>
+    </div>
+
+    <div class="esg-card">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Selos de sustentabilidade</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Conquistados pelo condomínio</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--teal-50);border-radius:var(--radius-md)">
+          <i class="ti ti-leaf" style="font-size:22px;color:var(--teal-600)"></i>
+          <div><div style="font-size:13px;font-weight:500;color:var(--teal-800)">Condomínio Verde</div><div style="font-size:12px;color:var(--teal-600);line-height:1.5">Concedido quando o condomínio mantém atividade de reciclagem por 3 meses consecutivos.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:#E6F1FB;border-radius:var(--radius-md)">
+          <i class="ti ti-chart-bar" style="font-size:22px;color:#185FA5"></i>
+          <div><div style="font-size:13px;font-weight:500;color:#0C447C">Relatório ESG ativo</div><div style="font-size:12px;color:#185FA5;line-height:1.5">Indica que o condomínio tem relatório de impacto atualizado e disponível para auditoria.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--amber-50);border-radius:var(--radius-md)">
+          <i class="ti ti-recycle" style="font-size:22px;color:#633806"></i>
+          <div><div style="font-size:13px;font-weight:500;color:#412402">80kg+ reciclados</div><div style="font-size:12px;color:#633806;line-height:1.5">Marco de volume atingido. A cada faixa o condomínio recebe um novo selo.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="esg-card">
+      <div style="font-size:15px;font-weight:500;margin-bottom:14px">Histórico de coletas recentes</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Clique em uma coleta para ver detalhes</div>
+      ${historico.map(h => `
+        <div class="hist-row" style="cursor:pointer" onclick="abrirDetalhe(${h.id})">
+          <span style="color:var(--text-secondary);display:flex;align-items:center;gap:8px"><i class="ti ti-chevron-right" style="font-size:14px"></i> ${h.data} · ${h.tipo} · ${h.peso}kg</span>
+          <strong>R$ ${h.valor.toFixed(2).replace('.',',')}</strong>
+        </div>`).join('')}
+    </div>
+  `;
+  document.getElementById('imp-content').innerHTML = html;
+}
+
+function renderImpactoReciclador(u) {
+  const totalKg = historicoReciclador.reduce((s,h)=>s+h.peso,0);
+  const totalGasto = historicoReciclador.reduce((s,h)=>s+h.valor,0);
+  const ticketMedio = totalGasto / historicoReciclador.length;
+  const precoMedioKg = totalGasto / totalKg;
+
+  const porTipo = {};
+  historicoReciclador.forEach(h => { porTipo[h.tipo] = (porTipo[h.tipo]||0) + h.peso; });
+  const corTipo = { 'Plástico':'var(--teal-400)', 'Papel':'#378ADD', 'Metal':'var(--amber-400)', 'Vidro':'#888780' };
+
+  const precoTipo = {};
+  historicoReciclador.forEach(h => {
+    if (!precoTipo[h.tipo]) precoTipo[h.tipo] = { soma:0, n:0 };
+    precoTipo[h.tipo].soma += h.precoKg;
+    precoTipo[h.tipo].n++;
+  });
+
+  const html = `
+    <div class="impact-head">
+      <div>
+        <div class="section-h-left">Painel do reciclador</div>
+        <div class="section-sub-left" style="margin-bottom:0">Pedro Recicla · Autônomo · Santo André</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div style="display:flex;gap:8px;align-items:center;background:var(--bg-secondary);padding:8px 12px;border-radius:var(--radius-md)">
+          <i class="ti ti-user-circle" style="font-size:20px;color:var(--coral-400)"></i>
+          <div style="text-align:right">
+            <div style="font-size:13px;font-weight:500">${u.nome}</div>
+            <div style="font-size:11px;color:var(--text-secondary)">Reciclador · ⭐ 4,8</div>
+          </div>
+        </div>
+        <button class="btn btn-out btn-sm" onclick="alert('Gerando relatório de compras em PDF...')"><i class="ti ti-file-text" style="font-size:14px"></i> Extrair relatório PDF</button>
+      </div>
+    </div>
+
+    <div class="bignum-grid" style="margin-bottom:18px">
+      <div class="bignum"><div class="bignum-n" style="color:var(--coral-400)">${totalKg}kg</div><div class="bignum-l">comprados no mês</div></div>
+      <div class="bignum"><div class="bignum-n" style="color:var(--coral-400)">R$ ${totalGasto.toFixed(2).replace('.',',')}</div><div class="bignum-l">total investido</div></div>
+      <div class="bignum"><div class="bignum-n" style="color:var(--coral-400)">${historicoReciclador.length}</div><div class="bignum-l">coletas realizadas</div></div>
+      <div class="bignum"><div class="bignum-n" style="color:var(--coral-400)">R$ ${ticketMedio.toFixed(2).replace('.',',')}</div><div class="bignum-l">ticket médio</div></div>
+      <div class="bignum"><div class="bignum-n" style="color:var(--coral-400)">3</div><div class="bignum-l">fornecedores recorrentes</div></div>
+      <div class="bignum"><div class="bignum-n" style="color:var(--coral-400)">2</div><div class="bignum-l">rotas otimizadas usadas</div></div>
+      <div class="bignum"><div class="bignum-n" style="color:var(--coral-400)">87%</div><div class="bignum-l">taxa de coleta sem perrengue</div></div>
+      <div class="bignum"><div class="bignum-n" style="color:var(--coral-400)">⭐ 4,8</div><div class="bignum-l">reputação</div></div>
+    </div>
+
+    <div class="esg-card">
+      <div style="font-size:15px;font-weight:500;margin-bottom:14px">Composição dos materiais comprados</div>
+      ${Object.entries(porTipo).map(([tipo, peso]) => {
+        const pct = Math.round(peso/totalKg*100);
+        return `<div class="esg-item"><div class="esg-top"><span>${tipo}</span><span style="color:${corTipo[tipo]};font-weight:500">${peso}kg (${pct}%)</span></div><div class="esg-track"><div class="esg-fill" style="width:${pct}%;background:${corTipo[tipo]}"></div></div></div>`;
+      }).join('')}
+    </div>
+
+    <div class="esg-card">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Preço médio pago por material</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Sua média x preço de referência do mercado local</div>
+      ${Object.entries(precoTipo).map(([tipo, dados]) => {
+        const media = dados.soma/dados.n;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--border-tertiary)">
+          <div style="display:flex;align-items:center;gap:8px"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${corTipo[tipo]}"></span><span style="font-size:13px">${tipo}</span></div>
+          <div style="text-align:right"><div style="font-size:14px;font-weight:500;color:var(--coral-600)">R$ ${media.toFixed(2).replace('.',',')}/kg</div><div style="font-size:10px;color:var(--text-secondary)">${dados.n} ${dados.n===1?'compra':'compras'}</div></div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="esg-card">
+      <div style="font-size:15px;font-weight:500;margin-bottom:4px">Selos de reputação</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">Conquistados pela sua operação — visíveis para condomínios</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--coral-50);border-radius:var(--radius-md)">
+          <i class="ti ti-clock-check" style="font-size:22px;color:var(--coral-600)"></i>
+          <div><div style="font-size:13px;font-weight:500;color:var(--coral-600)">Pontual nas coletas</div><div style="font-size:12px;color:#993C1D;line-height:1.5">Mais de 90% das coletas realizadas no horário combinado nos últimos 60 dias. Aparece em destaque nos seus lances.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--teal-50);border-radius:var(--radius-md)">
+          <i class="ti ti-scale" style="font-size:22px;color:var(--teal-600)"></i>
+          <div><div style="font-size:13px;font-weight:500;color:var(--teal-800)">Pesagem honesta</div><div style="font-size:12px;color:var(--teal-600);line-height:1.5">Zero disputas de pesagem nos últimos 90 dias. Síndicos confiam mais nos seus lances.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:var(--amber-50);border-radius:var(--radius-md)">
+          <i class="ti ti-route" style="font-size:22px;color:#633806"></i>
+          <div><div style="font-size:13px;font-weight:500;color:#412402">Especialista em rotas</div><div style="font-size:12px;color:#633806;line-height:1.5">Mais de 5 rotas otimizadas concluídas. Você recebe acesso antecipado a novas rotas na sua região.</div></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;padding:10px;background:#E6F1FB;border-radius:var(--radius-md)">
+          <i class="ti ti-star-filled" style="font-size:22px;color:#185FA5"></i>
+          <div><div style="font-size:13px;font-weight:500;color:#0C447C">Top reciclador da região</div><div style="font-size:12px;color:#185FA5;line-height:1.5">Reputação acima de 4,5 e mais de 10 coletas no mês. Aparece no topo das listagens.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="esg-card">
+      <div style="font-size:15px;font-weight:500;margin-bottom:14px">Histórico de coletas recentes</div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">Clique em uma coleta para ver detalhes</div>
+      ${historicoReciclador.map(h => `
+        <div class="hist-row" style="cursor:pointer" onclick="abrirDetalheReciclador(${h.id})">
+          <span style="color:var(--text-secondary);display:flex;align-items:center;gap:8px"><i class="ti ti-chevron-right" style="font-size:14px"></i> ${h.data} · ${h.tipo} · ${h.peso}kg · ${h.regiao}</span>
+          <strong style="color:var(--coral-600)">R$ ${h.valor.toFixed(2).replace('.',',')}</strong>
+        </div>`).join('')}
+    </div>
+  `;
+  document.getElementById('imp-content').innerHTML = html;
+}
+
+function abrirDetalheReciclador(id) {
+  const h = historicoReciclador.find(x => x.id === id);
+  if (!h) return;
+  const m = document.getElementById('detail-modal');
+  document.getElementById('detail-content').innerHTML = `
+    <div style="height:140px;background:var(--bg-secondary);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:500;color:var(--text-tertiary);margin-bottom:14px">${h.emoji}</div>
+    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500;margin-bottom:4px">${h.tipo} · ${h.data}</div>
+    <div style="font-size:16px;font-weight:500;margin-bottom:10px">${h.peso}kg comprados</div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border-tertiary)"><span style="color:var(--text-secondary)">Fornecedor</span><span style="font-weight:500;text-align:right">${h.fornecedor}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border-tertiary)"><span style="color:var(--text-secondary)">Região</span><span style="font-weight:500">${h.regiao}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border-tertiary)"><span style="color:var(--text-secondary)">Preço pago</span><span style="font-weight:500;color:var(--coral-600)">R$ ${h.precoKg.toFixed(2).replace('.',',')}/kg</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border-tertiary)"><span style="color:var(--text-secondary)">Total investido</span><span style="font-weight:500;color:var(--coral-600)">R$ ${h.valor.toFixed(2).replace('.',',')}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border-tertiary)"><span style="color:var(--text-secondary)">Tipo de coleta</span><span style="font-weight:500">${h.rota}</span></div>
+    <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-top:14px;padding-top:10px">${h.desc}</div>
+  `;
+  m.classList.add('open');
+}
+
+function abrirDetalhe(id) {
+  const h = historico.find(x => x.id === id);
+  if (!h) return;
+  const m = document.getElementById('detail-modal');
+  document.getElementById('detail-content').innerHTML = `
+    <div style="height:140px;background:var(--bg-secondary);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:500;color:var(--text-tertiary);margin-bottom:14px">${h.foto}</div>
+    <div style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500;margin-bottom:4px">${h.tipo} · ${h.data}</div>
+    <div style="font-size:16px;font-weight:500;margin-bottom:10px">${h.peso}kg coletados</div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border-tertiary)"><span style="color:var(--text-secondary)">Comprador</span><span style="font-weight:500">${h.comprador}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:0.5px solid var(--border-tertiary)"><span style="color:var(--text-secondary)">Valor recebido</span><span style="font-weight:500;color:var(--teal-400)">R$ ${h.valor.toFixed(2).replace('.',',')}</span></div>
+    <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-top:14px;padding-top:10px">${h.desc}</div>
+  `;
+  m.classList.add('open');
+}
+function fecharDetalhe() { document.getElementById('detail-modal').classList.remove('open'); }
+</script>
+</body>
+</html>
